@@ -1,0 +1,29 @@
+# Runtime parameters — loaded by the agent registry and passed as Graph(config=...).
+# Separate from config/agent.yaml, which is the static manifest.
+
+# Retry budget for the backbone.
+max_retry: 3
+# Request timeout in seconds, honoured by framework service clients.
+timeout_s: 30
+
+# Itinerary bounds. Forwarded to the domain pipeline by
+# ItineraryWorkflowGraphNode._parent_config() and republished into inner state
+# by DomainWorkflowGraph._extra_initial_state(); the ingestion node and the
+# output gate both read the block from inner state, so every value below is
+# live in the hosted deployment and in the standalone entry point alike.
+itinerary:
+  # Maximum booking records accepted in one request. The records arrive from
+  # the caller, so the list is caller-sized and is capped here rather than
+  # left to grow with the payload.
+  max_bookings: 500
+  # Maximum characters kept from any single caller-supplied field that is
+  # rendered into the summary (hotel name, activity name, cancellation policy).
+  max_field_chars: 400
+  # Upper bound on the released summary, in characters. A summary larger than
+  # a trip digest can be indicates the pipeline is re-emitting the booking
+  # payload rather than summarising it.
+  max_report_chars: 120000
+  # Inclusive bounds for a per-segment cost in JPY. A cost outside this range
+  # is a malformed booking record, not a trip that costs that much.
+  min_cost_jpy: 0
+  max_cost_jpy: 100000000
